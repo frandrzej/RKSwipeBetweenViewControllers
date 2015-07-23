@@ -162,4 +162,8 @@
 @property (nonatomic, strong)UIView *navigationView;
 @property (nonatomic, strong)NSArray *buttonText;
 
+@property (nonatomic, assign) BOOL useViewControllersTitle;
+@property (nonatomic, strong) UIColor *mainColor;
+@property (nonatomic, strong) UIColor *selectionColor;
+
 @end

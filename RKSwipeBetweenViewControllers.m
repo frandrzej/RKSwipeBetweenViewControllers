@@ -43,6 +43,8 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.mainColor = [UIColor colorWithRed:0.01 green:0.05 blue:0.06 alpha:1];
+        self.selectionColor = [UIColor greenColor];
     }
     return self;
 }
@@ -51,7 +53,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 {
     [super viewDidLoad];
 
-    self.navigationBar.barTintColor = [UIColor colorWithRed:0.01 green:0.05 blue:0.06 alpha:1]; //%%% bartint
+    self.navigationBar.barTintColor = self.mainColor; //%%% bartint
     self.navigationBar.translucent = NO;
     viewControllerArray = [[NSMutableArray alloc]init];
     self.currentPageIndex = 0;
@@ -62,14 +64,17 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 #pragma mark Customizables
 
 //%%% color of the status bar
--(UIStatusBarStyle)preferredStatusBarStyle {
+-(UIStatusBarStyle)preferredStatusBarStyle
+{
     return UIStatusBarStyleLightContent;
-//    return UIStatusBarStyleDefault;
 }
 
+
 //%%% sets up the tabs using a loop.  You can take apart the loop to customize individual buttons, but remember to tag the buttons.  (button.tag=0 and the second button.tag=1, etc)
--(void)setupSegmentButtons {
+-(void)setupSegmentButtons
+{
     navigationView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.view.frame.size.width,self.navigationBar.frame.size.height)];
+    navigationView.tag = 99;
     
     NSInteger numControllers = [viewControllerArray count];
     
@@ -82,11 +87,16 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
         [navigationView addSubview:button];
         
         button.tag = i; //%%% IMPORTANT: if you make your own custom buttons, you have to tag them appropriately
-        button.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];//%%% buttoncolors
+        button.backgroundColor = self.mainColor;//%%% buttoncolors
         
         [button addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
-        [button setTitle:[buttonText objectAtIndex:i] forState:UIControlStateNormal]; //%%%buttontitle
+        NSString *text = nil;
+        if(self.useViewControllersTitle)
+            text = ((UIViewController *)[viewControllerArray objectAtIndex:i]).title;
+        if(!text.length)
+            text = [buttonText objectAtIndex:i];
+        [button setTitle:text forState:UIControlStateNormal]; //%%%buttontitle
     }
     
     pageController.navigationController.navigationBar.topItem.titleView = navigationView;
@@ -117,7 +127,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
     [leftButton setTitle:@"left" forState:UIControlStateNormal];
     [middleButton setTitle:@"middle" forState:UIControlStateNormal];
     [rightButton setTitle:@"right" forState:UIControlStateNormal];
-     */
+     
     
     [self setupSelector];
 }
@@ -126,7 +136,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 //%%% sets up the selection bar under the buttons on the navigation bar
 -(void)setupSelector {
     selectionBar = [[UIView alloc]initWithFrame:CGRectMake(X_BUFFER-X_OFFSET, SELECTOR_Y_BUFFER,(self.view.frame.size.width-2*X_BUFFER)/[viewControllerArray count], SELECTOR_HEIGHT)];
-    selectionBar.backgroundColor = [UIColor greenColor]; //%%% sbcolor
+    selectionBar.backgroundColor = self.selectionColor; //%%% sbcolor
     selectionBar.alpha = 0.8; //%%% sbalpha
     [navigationView addSubview:selectionBar];
 }
@@ -135,7 +145,8 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 //generally, this shouldn't be changed unless you know what you're changing
 #pragma mark Setup
 
--(void)viewWillAppear:(BOOL)animated {
+-(void)viewWillAppear:(BOOL)animated
+{
     if (!self.hasAppearedFlag) {
         [self setupPageViewController];
         [self setupSegmentButtons];
