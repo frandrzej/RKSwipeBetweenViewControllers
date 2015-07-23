@@ -148,6 +148,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 -(void)viewWillAppear:(BOOL)animated
 {
     if (!self.hasAppearedFlag) {
+        self.navigationBar.barTintColor = self.mainColor;
         [self setupPageViewController];
         [self setupSegmentButtons];
         self.hasAppearedFlag = YES;
