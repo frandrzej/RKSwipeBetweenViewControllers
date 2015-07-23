@@ -127,7 +127,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
     [leftButton setTitle:@"left" forState:UIControlStateNormal];
     [middleButton setTitle:@"middle" forState:UIControlStateNormal];
     [rightButton setTitle:@"right" forState:UIControlStateNormal];
-     
+     */
     
     [self setupSelector];
 }
