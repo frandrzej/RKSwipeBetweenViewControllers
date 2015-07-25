@@ -40,6 +40,13 @@ CGFloat X_OFFSET = 0.0; //%%% for some reason there's a little bit of a glitchy 
 @synthesize navigationView;
 @synthesize buttonText;
 
+
+-(void)setTopTitle:(NSString *)topTitle
+{
+    _topTitle = topTitle;
+    self.pageController.navigationController.navigationBar.topItem.title = _topTitle;
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
