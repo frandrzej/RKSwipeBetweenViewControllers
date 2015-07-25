@@ -9,18 +9,20 @@
 
 #import "RKSwipeBetweenViewControllers.h"
 
+CGFloat const PH_SWIPE_NAVBAR_Y_OFFSET = 30;
+
 //%%% customizeable button attributes
 CGFloat X_BUFFER = 0.0; //%%% the number of pixels on either side of the segment
-CGFloat Y_BUFFER = 14.0; //%%% number of pixels on top of the segment
-CGFloat HEIGHT = 30.0; //%%% height of the segment
+CGFloat Y_BUFFER = 14.0 + PH_SWIPE_NAVBAR_Y_OFFSET; //%%% number of pixels on top of the segment
+const CGFloat HEIGHT = 34.0; //%%% height of the segment
 
 //%%% customizeable selector bar attributes (the black bar under the buttons)
 CGFloat BOUNCE_BUFFER = 10.0; //%%% adds bounce to the selection bar when you scroll
 CGFloat ANIMATION_SPEED = 0.2; //%%% the number of seconds it takes to complete the animation
-CGFloat SELECTOR_Y_BUFFER = 40.0; //%%% the y-value of the bar that shows what page you are on (0 is the top)
-CGFloat SELECTOR_HEIGHT = 4.0; //%%% thickness of the selector bar
+CGFloat SELECTOR_Y_BUFFER = HEIGHT; //46.0 + PH_SWIPE_NAVBAR_Y_OFFSET; //%%% the y-value of the bar that shows what page you are on (0 is the top)
+CGFloat SELECTOR_HEIGHT = 2.0; //%%% thickness of the selector bar
 
-CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy offset.  I'm going to look for a better workaround in the future
+CGFloat X_OFFSET = 0.0; //%%% for some reason there's a little bit of a glitchy offset.  I'm going to look for a better workaround in the future
 
 @interface RKSwipeBetweenViewControllers ()
 
@@ -34,7 +36,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 @implementation RKSwipeBetweenViewControllers
 @synthesize viewControllerArray;
 @synthesize selectionBar;
-@synthesize pageController;
+//@synthesize pageController;
 @synthesize navigationView;
 @synthesize buttonText;
 
@@ -52,7 +54,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     self.navigationBar.barTintColor = self.mainColor; //%%% bartint
     self.navigationBar.translucent = NO;
     viewControllerArray = [[NSMutableArray alloc]init];
@@ -73,17 +75,17 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 //%%% sets up the tabs using a loop.  You can take apart the loop to customize individual buttons, but remember to tag the buttons.  (button.tag=0 and the second button.tag=1, etc)
 -(void)setupSegmentButtons
 {
-    navigationView = [[UIView alloc]initWithFrame:CGRectMake(0,0,self.view.frame.size.width,self.navigationBar.frame.size.height)];
+    navigationView = [[UIView alloc]initWithFrame:CGRectMake(0,Y_BUFFER,self.view.frame.size.width,self.navigationBar.frame.size.height)];
     navigationView.tag = 99;
     
     NSInteger numControllers = [viewControllerArray count];
     
     if (!buttonText) {
-         buttonText = [[NSArray alloc]initWithObjects: @"first",@"second",@"third",@"fourth",@"etc",@"etc",@"etc",@"etc",nil]; //%%%buttontitle
+        buttonText = [[NSArray alloc]initWithObjects: @"first",@"second",@"third",@"fourth",@"etc",@"etc",@"etc",@"etc",nil]; //%%%buttontitle
     }
     
     for (int i = 0; i<numControllers; i++) {
-        UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+i*(self.view.frame.size.width-2*X_BUFFER)/numControllers-X_OFFSET, Y_BUFFER, (self.view.frame.size.width-2*X_BUFFER)/numControllers, HEIGHT)];
+        UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+i*(self.view.frame.size.width-2*X_BUFFER)/numControllers-X_OFFSET, 0 , (self.view.frame.size.width-2*X_BUFFER)/numControllers, HEIGHT)];
         [navigationView addSubview:button];
         
         button.tag = i; //%%% IMPORTANT: if you make your own custom buttons, you have to tag them appropriately
@@ -99,34 +101,35 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
         [button setTitle:text forState:UIControlStateNormal]; //%%%buttontitle
     }
     
-    pageController.navigationController.navigationBar.topItem.titleView = navigationView;
+    //self.pageController.navigationController.navigationBar.topItem.titleView = navigationView;
+    [self.pageController.navigationController.navigationBar addSubview:navigationView];
     
     //%%% example custom buttons example:
     /*
-    NSInteger width = (self.view.frame.size.width-(2*X_BUFFER))/3;
-    UIButton *leftButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER, Y_BUFFER, width, HEIGHT)];
-    UIButton *middleButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+width, Y_BUFFER, width, HEIGHT)];
-    UIButton *rightButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+2*width, Y_BUFFER, width, HEIGHT)];
-    
-    [self.navigationBar addSubview:leftButton];
-    [self.navigationBar addSubview:middleButton];
-    [self.navigationBar addSubview:rightButton];
-    
-    leftButton.tag = 0;
-    middleButton.tag = 1;
-    rightButton.tag = 2;
-    
-    leftButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
-    middleButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
-    rightButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
-    
-    [leftButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    [middleButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    [rightButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    
-    [leftButton setTitle:@"left" forState:UIControlStateNormal];
-    [middleButton setTitle:@"middle" forState:UIControlStateNormal];
-    [rightButton setTitle:@"right" forState:UIControlStateNormal];
+     NSInteger width = (self.view.frame.size.width-(2*X_BUFFER))/3;
+     UIButton *leftButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER, Y_BUFFER, width, HEIGHT)];
+     UIButton *middleButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+width, Y_BUFFER, width, HEIGHT)];
+     UIButton *rightButton = [[UIButton alloc]initWithFrame:CGRectMake(X_BUFFER+2*width, Y_BUFFER, width, HEIGHT)];
+     
+     [self.navigationBar addSubview:leftButton];
+     [self.navigationBar addSubview:middleButton];
+     [self.navigationBar addSubview:rightButton];
+     
+     leftButton.tag = 0;
+     middleButton.tag = 1;
+     rightButton.tag = 2;
+     
+     leftButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
+     middleButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
+     rightButton.backgroundColor = [UIColor colorWithRed:0.03 green:0.07 blue:0.08 alpha:1];
+     
+     [leftButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+     [middleButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+     [rightButton addTarget:self action:@selector(tapSegmentButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+     
+     [leftButton setTitle:@"left" forState:UIControlStateNormal];
+     [middleButton setTitle:@"middle" forState:UIControlStateNormal];
+     [rightButton setTitle:@"right" forState:UIControlStateNormal];
      */
     
     [self setupSelector];
@@ -157,16 +160,16 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 
 //%%% generic setup stuff for a pageview controller.  Sets up the scrolling style and delegate for the controller
 -(void)setupPageViewController {
-    pageController = (UIPageViewController*)self.topViewController;
-    pageController.delegate = self;
-    pageController.dataSource = self;
-    [pageController setViewControllers:@[[viewControllerArray objectAtIndex:0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
+    self.pageController = (UIPageViewController*)self.topViewController;
+    self.pageController.delegate = self;
+    self.pageController.dataSource = self;
+    [self.pageController setViewControllers:@[[viewControllerArray objectAtIndex:0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     [self syncScrollView];
 }
 
 //%%% this allows us to get information back from the scrollview, namely the coordinate information that we can link to the selection bar.
 -(void)syncScrollView {
-    for (UIView* view in pageController.view.subviews){
+    for (UIView* view in self.pageController.view.subviews){
         if([view isKindOfClass:[UIScrollView class]]) {
             self.pageScrollView = (UIScrollView *)view;
             self.pageScrollView.delegate = self;
@@ -197,7 +200,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
             
             //%%% scroll through all the objects between the two points
             for (int i = (int)tempIndex+1; i<=button.tag; i++) {
-                [pageController setViewControllers:@[[viewControllerArray objectAtIndex:i]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:^(BOOL complete){
+                [self.pageController setViewControllers:@[[viewControllerArray objectAtIndex:i]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:^(BOOL complete){
                     
                     //%%% if the action finishes scrolling (i.e. the user doesn't stop it in the middle),
                     //then it updates the page that it's currently on
@@ -211,7 +214,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
         //%%% this is the same thing but for going right -> left
         else if (button.tag < tempIndex) {
             for (int i = (int)tempIndex-1; i >= button.tag; i--) {
-                [pageController setViewControllers:@[[viewControllerArray objectAtIndex:i]] direction:UIPageViewControllerNavigationDirectionReverse animated:YES completion:^(BOOL complete){
+                [self.pageController setViewControllers:@[[viewControllerArray objectAtIndex:i]] direction:UIPageViewControllerNavigationDirectionReverse animated:YES completion:^(BOOL complete){
                     if (complete) {
                         [weakSelf updateCurrentPageIndex:i];
                     }
@@ -254,7 +257,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController {
     NSInteger index = [viewControllerArray indexOfObject:viewController];
-
+    
     if ((index == NSNotFound) || (index == 0)) {
         return nil;
     }
@@ -265,7 +268,7 @@ CGFloat X_OFFSET = 8.0; //%%% for some reason there's a little bit of a glitchy 
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController {
     NSInteger index = [viewControllerArray indexOfObject:viewController];
-
+    
     if (index == NSNotFound) {
         return nil;
     }
