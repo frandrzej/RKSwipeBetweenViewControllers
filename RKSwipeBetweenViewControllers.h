@@ -165,5 +165,6 @@
 @property (nonatomic, assign) BOOL useViewControllersTitle;
 @property (nonatomic, strong) UIColor *mainColor;
 @property (nonatomic, strong) UIColor *selectionColor;
+@property (nonatomic, strong) NSString *topTitle;
 
 @end

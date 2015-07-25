@@ -103,6 +103,8 @@ CGFloat X_OFFSET = 0.0; //%%% for some reason there's a little bit of a glitchy 
     
     //self.pageController.navigationController.navigationBar.topItem.titleView = navigationView;
     [self.pageController.navigationController.navigationBar addSubview:navigationView];
+    self.pageController.navigationController.navigationBar.topItem.title = self.topTitle;
+
     
     //%%% example custom buttons example:
     /*
